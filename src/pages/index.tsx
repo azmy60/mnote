@@ -23,6 +23,7 @@ const Home: NextPage = () => {
 
   useEffect(() => {
     setMdText(localStorage.getItem("__mnote") ?? "");
+    textarea.current!.focus()
   }, []);
 
   useEffect(() => {
@@ -52,7 +53,8 @@ const Home: NextPage = () => {
               ref={textarea}
               value={mdText}
               onChange={onChangeHandler}
-              className="bg-transparent resize-none min-w-full whitespace-pre outline-none"
+              placeholder="Start typing your note here!"
+              className="bg-transparent resize-none min-w-full min-h-full whitespace-pre outline-none"
             />
           </div>
           <div className="p-4 bg-base-200 overflow-x-auto overflow-y-scroll">
