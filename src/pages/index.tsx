@@ -1,6 +1,6 @@
 import type { NextPage } from "next";
 import Head from "next/head";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { marked } from "marked";
 import Split from "react-split";
 import debounce from "lodash.debounce";
@@ -12,17 +12,22 @@ const save = debounce((text: string) => {
 
 const Home: NextPage = () => {
   const [mdText, setMdText] = useState("");
+  const preview = useRef<HTMLDivElement>(null)
+  const textarea = useRef<HTMLTextAreaElement>(null)
 
   const onChangeHandler = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const text = e.target.value;
     setMdText(text);
     save(text);
-    e.target.style.width = `${e.target.scrollWidth}px`;
   };
 
   useEffect(() => {
     setMdText(localStorage.getItem("__mnote") ?? "");
   }, []);
+
+  useEffect(() => {
+    textarea.current!.style.width = `${preview.current!.scrollWidth}px`;
+  }, [mdText]);
 
   return (
     <>
@@ -44,6 +49,7 @@ const Home: NextPage = () => {
         <Split className="flex grow overflow-y-hidden">
           <div className="p-4 bg-base-100 overflow-auto">
             <TextareaAutoSize
+              ref={textarea}
               value={mdText}
               onChange={onChangeHandler}
               className="bg-transparent resize-none min-w-full whitespace-pre outline-none"
@@ -51,6 +57,7 @@ const Home: NextPage = () => {
           </div>
           <div className="p-4 bg-base-200 overflow-x-auto overflow-y-scroll">
             <div
+              ref={preview}
               dangerouslySetInnerHTML={{ __html: marked.parse(mdText) }}
               className="prose"
             />
