@@ -161,6 +161,16 @@
   dependencies:
     tslib "^2.4.0"
 
+"@tailwindcss/typography@^0.5.7":
+  version "0.5.7"
+  resolved "https://registry.yarnpkg.com/@tailwindcss/typography/-/typography-0.5.7.tgz#e0b95bea787ee14c5a34a74fc824e6fe86ea8855"
+  integrity sha512-JTTSTrgZfp6Ki4svhPA4mkd9nmQ/j9EfE7SbHJ1cLtthKkpW2OxsFXzSmxbhYbEkfNIyAyhle5p4SYyKRbz/jg==
+  dependencies:
+    lodash.castarray "^4.4.0"
+    lodash.isplainobject "^4.0.6"
+    lodash.merge "^4.6.2"
+    postcss-selector-parser "6.0.10"
+
 "@types/json-schema@^7.0.9":
   version "7.0.11"
   resolved "https://registry.yarnpkg.com/@types/json-schema/-/json-schema-7.0.11.tgz#d421b6c527a3037f7c84433fd2c4229e016863d3"
@@ -170,6 +180,23 @@
   version "0.0.29"
   resolved "https://registry.yarnpkg.com/@types/json5/-/json5-0.0.29.tgz#ee28707ae94e11d2b827bcbe5270bcea7f3e71ee"
   integrity sha512-dRLjCWHYg4oaA77cxO64oO+7JwCwnIzkZPdrrC71jQmQtlhM556pwKo5bUzqvZndkVbeFLIIi+9TC40JNF5hNQ==
+
+"@types/lodash.debounce@^4.0.7":
+  version "4.0.7"
+  resolved "https://registry.yarnpkg.com/@types/lodash.debounce/-/lodash.debounce-4.0.7.tgz#0285879defb7cdb156ae633cecd62d5680eded9f"
+  integrity sha512-X1T4wMZ+gT000M2/91SYj0d/7JfeNZ9PeeOldSNoE/lunLeQXKvkmIumI29IaKMotU/ln/McOIvgzZcQ/3TrSA==
+  dependencies:
+    "@types/lodash" "*"
+
+"@types/lodash@*":
+  version "4.14.185"
+  resolved "https://registry.yarnpkg.com/@types/lodash/-/lodash-4.14.185.tgz#c9843f5a40703a8f5edfd53358a58ae729816908"
+  integrity sha512-evMDG1bC4rgQg4ku9tKpuMh5iBNEwNa3tf9zRHdP1qlv+1WUg44xat4IxCE14gIpZRGUUWAx2VhItCZc25NfMA==
+
+"@types/marked@^4.0.7":
+  version "4.0.7"
+  resolved "https://registry.yarnpkg.com/@types/marked/-/marked-4.0.7.tgz#400a76809fd08c2bbd9e25f3be06ea38c8e0a1d3"
+  integrity sha512-eEAhnz21CwvKVW+YvRvcTuFKNU9CV1qH+opcgVK3pIMI6YZzDm6gc8o2vHjldFk6MGKt5pueSB7IOpvpx5Qekw==
 
 "@types/node@18.0.0":
   version "18.0.0"
@@ -1410,6 +1437,21 @@ locate-path@^6.0.0:
   dependencies:
     p-locate "^5.0.0"
 
+lodash.castarray@^4.4.0:
+  version "4.4.0"
+  resolved "https://registry.yarnpkg.com/lodash.castarray/-/lodash.castarray-4.4.0.tgz#c02513515e309daddd4c24c60cfddcf5976d9115"
+  integrity sha512-aVx8ztPv7/2ULbArGJ2Y42bG1mEQ5mGjpdvrbJcJFU3TbYybe+QlLS4pst9zV52ymy2in1KpFPiZnAOATxD4+Q==
+
+lodash.debounce@^4.0.8:
+  version "4.0.8"
+  resolved "https://registry.yarnpkg.com/lodash.debounce/-/lodash.debounce-4.0.8.tgz#82d79bff30a67c4005ffd5e2515300ad9ca4d7af"
+  integrity sha512-FT1yDzDYEoYWhnSGnpE/4Kj1fLZkDFyqRb7fNt6FdYOSxlUWAtp42Eh6Wb0rGIv/m9Bgo7x4GhQbm5Ys4SG5ow==
+
+lodash.isplainobject@^4.0.6:
+  version "4.0.6"
+  resolved "https://registry.yarnpkg.com/lodash.isplainobject/-/lodash.isplainobject-4.0.6.tgz#7c526a52d89b45c45cc690b88163be0497f550cb"
+  integrity sha512-oSXzaWypCMHkPC3NvBEaPHf0KsA5mvPrOPgQWDsbg8n7orZ290M0BmC/jgRZ4vcJ6DTAhjrsSYgdsW/F+MFOBA==
+
 lodash.merge@^4.6.2:
   version "4.6.2"
   resolved "https://registry.yarnpkg.com/lodash.merge/-/lodash.merge-4.6.2.tgz#558aa53b43b661e1925a0afdfa36a9a1085fe57a"
@@ -1428,6 +1470,11 @@ lru-cache@^6.0.0:
   integrity sha512-Jo6dJ04CmSjuznwJSS3pUeWmd/H0ffTlkXXgwZi+eq1UCmqQwCh+eLsYOYCwY991i2Fah4h1BEMCx4qThGbsiA==
   dependencies:
     yallist "^4.0.0"
+
+marked@^4.1.0:
+  version "4.1.0"
+  resolved "https://registry.yarnpkg.com/marked/-/marked-4.1.0.tgz#3fc6e7485f21c1ca5d6ec4a39de820e146954796"
+  integrity sha512-+Z6KDjSPa6/723PQYyc1axYZpYYpDnECDaU6hkaf5gqBieBkMKYReL5hteF2QizhlMbgbo8umXl/clZ67+GlsA==
 
 merge2@^1.3.0, merge2@^1.4.1:
   version "1.4.1"
@@ -1696,7 +1743,7 @@ postcss-nested@5.0.6:
   dependencies:
     postcss-selector-parser "^6.0.6"
 
-postcss-selector-parser@^6.0.10, postcss-selector-parser@^6.0.6:
+postcss-selector-parser@6.0.10, postcss-selector-parser@^6.0.10, postcss-selector-parser@^6.0.6:
   version "6.0.10"
   resolved "https://registry.yarnpkg.com/postcss-selector-parser/-/postcss-selector-parser-6.0.10.tgz#79b61e2c0d1bfc2602d549e11d0876256f8df88d"
   integrity sha512-IQ7TZdoaqbT+LCpShg46jnZVlhWD2w6iQYAcYXfHARZ7X1t/UGhhceQDs5X0cGqKvYlHNOuv7Oa1xmb0oQuA3w==
@@ -1732,7 +1779,7 @@ prelude-ls@^1.2.1:
   resolved "https://registry.yarnpkg.com/prelude-ls/-/prelude-ls-1.2.1.tgz#debc6489d7a6e6b0e7611888cec880337d316396"
   integrity sha512-vkcDPrRZo1QZLbn5RLGPpg/WmIQ65qoWWhcGKf/b5eplkkarX0m9z8ppCat4mlOqUsWpyNuYgO3VRyrYHSzX5g==
 
-prop-types@^15.8.1:
+prop-types@^15.5.7, prop-types@^15.8.1:
   version "15.8.1"
   resolved "https://registry.yarnpkg.com/prop-types/-/prop-types-15.8.1.tgz#67d87bf1a694f48435cf332c24af10214a3140b5"
   integrity sha512-oj87CgZICdulUohogVAR7AjlC0327U4el4L6eAvOqCeudMDVU0NThNaV+b9Df4dXgSP1gXMTnPdhfe/2qDH5cg==
@@ -1768,6 +1815,23 @@ react-is@^16.13.1:
   version "16.13.1"
   resolved "https://registry.yarnpkg.com/react-is/-/react-is-16.13.1.tgz#789729a4dc36de2999dc156dd6c1d9c18cea56a4"
   integrity sha512-24e6ynE2H+OKt4kqsOvNd8kBpV65zoxbA4BVsEOB3ARVWQki/DHzaUoC5KuON/BiccDaCCTZBuOcfZs70kR8bQ==
+
+react-split@^2.0.14:
+  version "2.0.14"
+  resolved "https://registry.yarnpkg.com/react-split/-/react-split-2.0.14.tgz#ef198259bf43264d605f792fb3384f15f5b34432"
+  integrity sha512-bKWydgMgaKTg/2JGQnaJPg51T6dmumTWZppFgEbbY0Fbme0F5TuatAScCLaqommbGQQf/ZT1zaejuPDriscISA==
+  dependencies:
+    prop-types "^15.5.7"
+    split.js "^1.6.0"
+
+react-textarea-autosize@^8.3.4:
+  version "8.3.4"
+  resolved "https://registry.yarnpkg.com/react-textarea-autosize/-/react-textarea-autosize-8.3.4.tgz#270a343de7ad350534141b02c9cb78903e553524"
+  integrity sha512-CdtmP8Dc19xL8/R6sWvtknD/eCXkQr30dtvC4VmGInhRsfF8X/ihXCq6+9l9qbxmKRiq407/7z5fxE7cVWQNgQ==
+  dependencies:
+    "@babel/runtime" "^7.10.2"
+    use-composed-ref "^1.3.0"
+    use-latest "^1.2.1"
 
 react@18.2.0:
   version "18.2.0"
@@ -1907,6 +1971,11 @@ source-map-js@^1.0.2:
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/source-map-js/-/source-map-js-1.0.2.tgz#adbc361d9c62df380125e7f161f71c826f1e490c"
   integrity sha512-R0XvVJ9WusLiqTCEiGCmICCMplcCkIwwR11mOSD9CR5u+IXYdiseeEuXCVAjS54zqwkLcPNnmU4OeJ6tUrWhDw==
+
+split.js@^1.6.0:
+  version "1.6.5"
+  resolved "https://registry.yarnpkg.com/split.js/-/split.js-1.6.5.tgz#f7f61da1044c9984cb42947df4de4fadb5a3f300"
+  integrity sha512-mPTnGCiS/RiuTNsVhCm9De9cCAUsrNFFviRbADdKiiV+Kk8HKp/0fWu7Kr8pi3/yBmsqLFHuXGT9UUZ+CNLwFw==
 
 string.prototype.matchall@^4.0.7:
   version "4.0.7"
@@ -2082,6 +2151,23 @@ uri-js@^4.2.2:
   integrity sha512-7rKUyy33Q1yc98pQ1DAmLtwX109F7TIfWlW1Ydo8Wl1ii1SeHieeh0HHfPeL2fMXK6z0s8ecKs9frCuLJvndBg==
   dependencies:
     punycode "^2.1.0"
+
+use-composed-ref@^1.3.0:
+  version "1.3.0"
+  resolved "https://registry.yarnpkg.com/use-composed-ref/-/use-composed-ref-1.3.0.tgz#3d8104db34b7b264030a9d916c5e94fbe280dbda"
+  integrity sha512-GLMG0Jc/jiKov/3Ulid1wbv3r54K9HlMW29IWcDFPEqFkSO2nS0MuefWgMJpeHQ9YJeXDL3ZUF+P3jdXlZX/cQ==
+
+use-isomorphic-layout-effect@^1.1.1:
+  version "1.1.2"
+  resolved "https://registry.yarnpkg.com/use-isomorphic-layout-effect/-/use-isomorphic-layout-effect-1.1.2.tgz#497cefb13d863d687b08477d9e5a164ad8c1a6fb"
+  integrity sha512-49L8yCO3iGT/ZF9QttjwLF/ZD9Iwto5LnH5LmEdk/6cFmXddqi2ulF0edxTwjj+7mqvpVVGQWvbXZdn32wRSHA==
+
+use-latest@^1.2.1:
+  version "1.2.1"
+  resolved "https://registry.yarnpkg.com/use-latest/-/use-latest-1.2.1.tgz#d13dfb4b08c28e3e33991546a2cee53e14038cf2"
+  integrity sha512-xA+AVm/Wlg3e2P/JiItTziwS7FK92LWrDB0p+hgXloIMuVCeJJ8v6f0eeHyPZaJrM+usM1FkFfbNCrJGs8A/zw==
+  dependencies:
+    use-isomorphic-layout-effect "^1.1.1"
 
 use-sync-external-store@1.2.0:
   version "1.2.0"
