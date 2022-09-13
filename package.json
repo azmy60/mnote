@@ -9,12 +9,14 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@heroicons/react": "^2.0.11",
     "@types/lodash.debounce": "^4.0.7",
     "@types/marked": "^4.0.7",
     "daisyui": "^2.27.0",
     "lodash.debounce": "^4.0.8",
     "marked": "^4.1.0",
     "next": "12.2.5",
+    "next-auth": "^4.10.3",
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "react-split": "^2.0.14",
