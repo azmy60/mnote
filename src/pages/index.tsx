@@ -5,6 +5,7 @@ import { marked } from "marked";
 import Split from "react-split";
 import debounce from "lodash.debounce";
 import TextareaAutoSize from "react-textarea-autosize";
+import Link from "next/link";
 
 const save = debounce((text: string) => {
   localStorage.setItem("__mnote", text);
@@ -12,8 +13,8 @@ const save = debounce((text: string) => {
 
 const Home: NextPage = () => {
   const [mdText, setMdText] = useState("");
-  const preview = useRef<HTMLDivElement>(null)
-  const textarea = useRef<HTMLTextAreaElement>(null)
+  const preview = useRef<HTMLDivElement>(null);
+  const textarea = useRef<HTMLTextAreaElement>(null);
 
   const onChangeHandler = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const text = e.target.value;
@@ -23,7 +24,7 @@ const Home: NextPage = () => {
 
   useEffect(() => {
     setMdText(localStorage.getItem("__mnote") ?? "");
-    textarea.current!.focus()
+    textarea.current!.focus();
   }, []);
 
   useEffect(() => {
@@ -42,7 +43,10 @@ const Home: NextPage = () => {
       </Head>
 
       <main className="flex flex-col h-screen">
-        <div className="flex justify-end bg-base-100 px-4 py-2">
+        <div className="flex items-center justify-between bg-base-100 px-4 py-2">
+          <Link href="/dashboard">
+            <a className="font-bold text-xl">mnote</a>
+          </Link>
           <p className="text-sm underline opacity-50">
             Your note is auto-saved. Try to refresh.
           </p>
