@@ -60,7 +60,8 @@ const Dashboard: NextPage = () => {
         <div className="modal-box">
           <p>Sign in to get more access for free!</p>
           <div className="modal-action">
-            <button onClick={() => signIn()} className="btn">
+            <Link href="/"><a className="btn btn-outline">Go to note</a></Link>
+            <button onClick={() => signIn()} className="btn btn-primary">
               Sign In
             </button>
           </div>
