@@ -6,13 +6,13 @@ import Split from "react-split";
 import debounce from "lodash.debounce";
 import TextareaAutoSize from "react-textarea-autosize";
 import Link from "next/link";
+import { loadNote, saveNote } from "../StorageManager";
 
-const save = debounce((text: string) => {
-  localStorage.setItem("__mnote", text);
-}, 1000);
+const save = debounce(saveNote, 1000);
 
 const Home: NextPage = () => {
   const [mdText, setMdText] = useState("");
+  const [fileName, setFileName] = useState("Untitled");
   const preview = useRef<HTMLDivElement>(null);
   const textarea = useRef<HTMLTextAreaElement>(null);
 
@@ -23,7 +23,7 @@ const Home: NextPage = () => {
   };
 
   useEffect(() => {
-    setMdText(localStorage.getItem("__mnote") ?? "");
+    setMdText(loadNote());
     textarea.current!.focus();
   }, []);
 
@@ -34,7 +34,7 @@ const Home: NextPage = () => {
   return (
     <>
       <Head>
-        <title>mnote</title>
+        <title>mnote | {fileName}</title>
         <meta
           name="description"
           content="Take some notes and save it locally."
@@ -44,9 +44,18 @@ const Home: NextPage = () => {
 
       <main className="flex flex-col h-screen">
         <div className="flex items-center justify-between bg-base-100 px-4 py-2">
-          <Link href="/dashboard">
-            <a className="font-bold text-xl">mnote</a>
-          </Link>
+          <div className="flex items-center gap-2">
+            <Link href="/dashboard">
+              <a className="font-bold text-xl leading-none">mnote</a>
+            </Link>
+            <span className="leading-none">|</span>
+            <input
+              type="text"
+              className="input input-ghost input-xs text-base px-0 mt-0.5"
+              onChange={(e) => setFileName(e.target.value)}
+              value={fileName}
+            />
+          </div>
           <p className="text-sm underline opacity-50">
             Your note is auto-saved. Try to refresh.
           </p>
