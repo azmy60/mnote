@@ -8,18 +8,6 @@ const Notes = [
   {
     title: "My first note",
   },
-  {
-    title: "My second note",
-  },
-  {
-    title: "My third note",
-  },
-  {
-    title: "My fourth note",
-  },
-  {
-    title: "My fifth note",
-  },
 ];
 
 const Dashboard: NextPage = () => {
@@ -57,8 +45,11 @@ const Dashboard: NextPage = () => {
       </main>
 
       <div className={`modal ${!session && "modal-open"}`}>
-        <div className="modal-box">
-          <p>Sign in to get more access for free!</p>
+        <div className="modal-box max-w-sm">
+          <p>
+          You can have up to 100 notes with unlimited directories.
+          Sign in to unlock!
+          </p>
           <div className="modal-action">
             <Link href="/">
               <a className="btn btn-outline">Go to note</a>
