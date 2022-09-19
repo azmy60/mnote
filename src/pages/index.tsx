@@ -1,6 +1,6 @@
 import type { NextPage } from "next";
 import Head from "next/head";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import { marked } from "marked";
 import Split from "react-split";
 import debounce from "lodash.debounce";
@@ -12,11 +12,31 @@ import {
   saveNoteName,
   loadNoteContent,
 } from "../StorageManager";
+import create from "zustand";
+
+interface NoteState {
+  name: string;
+  setName: (name: string) => void;
+  content: string;
+  setContent: (content: string) => void;
+  previewWidth: number;
+  setPreviewWidth: (width: number) => void;
+}
+
+const useStore = create<NoteState>((set) => ({
+  name: "",
+  content: "",
+  setName: (name: string) => set({ name }),
+  setContent: (content: string) => set({ content }),
+  previewWidth: 0,
+  setPreviewWidth: (width: number) => set({ previewWidth: width }),
+}));
 
 const debouncedSaveNoteContent = debounce(saveNoteContent, 1000);
 const debouncedSaveNoteName = debounce(saveNoteName, 1000);
 
-function NoteName({ name, setName }: { name: string, setName: (val: string) => void }) {
+function NoteName() {
+  const { name, setName } = useStore();
   const changeHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
     debouncedSaveNoteName(e.target.value);
     setName(e.target.value);
@@ -32,7 +52,8 @@ function NoteName({ name, setName }: { name: string, setName: (val: string) => v
   );
 }
 
-function NoteContent({ content, setContent }: { content: string, setContent: (val: string) => void }) {
+function NoteContent() {
+  const { content, setContent, previewWidth } = useStore();
   const textarea = useRef<HTMLTextAreaElement>(null);
 
   const changeHandler = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -46,8 +67,7 @@ function NoteContent({ content, setContent }: { content: string, setContent: (va
   }, []);
 
   useEffect(() => {
-    // TODO use state manager
-    // textarea.current!.style.width = `${preview.current!.scrollWidth}px`;
+    textarea.current!.style.width = `${previewWidth}px`;
   }, [content]);
 
   return (
@@ -62,21 +82,24 @@ function NoteContent({ content, setContent }: { content: string, setContent: (va
 }
 
 const Home: NextPage = () => {
-  const [content, setContent] = useState('');
-  const [name, setName] = useState('');
+  const { name, setName, content, setContent, setPreviewWidth } = useStore();
   const preview = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    setContent(loadNoteContent())
-    setName(loadNoteName())
+    setContent(loadNoteContent());
+    setName(loadNoteName());
   }, []);
+
+  useEffect(() => {
+    setPreviewWidth(preview.current!.scrollWidth);
+  }, [content]);
 
   // TODO show yes/no prompt before closing the tab to prevent unsaved note
 
   return (
     <>
       <Head>
-        <title>mnote | {name}</title>
+        <title>mnote{name.length > 0 && ` | ${name}`}</title>
         <meta
           name="description"
           content="Take some notes and save it locally."
@@ -91,7 +114,7 @@ const Home: NextPage = () => {
               <a className="font-bold text-xl leading-none">mnote</a>
             </Link>
             <span className="leading-none">|</span>
-            <NoteName name={name} setName={setName} />
+            <NoteName />
           </div>
           <p className="text-sm underline opacity-50">
             Your note is auto-saved. Try to refresh.
@@ -99,7 +122,7 @@ const Home: NextPage = () => {
         </div>
         <Split className="flex grow overflow-y-hidden">
           <div className="p-4 bg-base-100 overflow-auto">
-            <NoteContent content={content} setContent={setContent} />
+            <NoteContent />
           </div>
           <div className="p-4 bg-base-200 overflow-x-auto overflow-y-scroll">
             <div
