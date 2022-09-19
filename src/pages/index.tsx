@@ -6,35 +6,77 @@ import Split from "react-split";
 import debounce from "lodash.debounce";
 import TextareaAutoSize from "react-textarea-autosize";
 import Link from "next/link";
-import { loadNote, saveNote } from "../StorageManager";
+import {
+  saveNoteContent,
+  loadNoteName,
+  saveNoteName,
+  loadNoteContent,
+} from "../StorageManager";
 
-const save = debounce(saveNote, 1000);
+const debouncedSaveNoteContent = debounce(saveNoteContent, 1000);
+const debouncedSaveNoteName = debounce(saveNoteName, 1000);
 
-const Home: NextPage = () => {
-  const [mdText, setMdText] = useState("");
-  const [fileName, setFileName] = useState("Untitled");
-  const preview = useRef<HTMLDivElement>(null);
+function NoteName({ name, setName }: { name: string, setName: (val: string) => void }) {
+  const changeHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
+    debouncedSaveNoteName(e.target.value);
+    setName(e.target.value);
+  };
+
+  return (
+    <input
+      type="text"
+      className="input input-ghost input-xs text-base px-0 mt-0.5"
+      onChange={(e) => changeHandler(e)}
+      value={name}
+    />
+  );
+}
+
+function NoteContent({ content, setContent }: { content: string, setContent: (val: string) => void }) {
   const textarea = useRef<HTMLTextAreaElement>(null);
 
-  const onChangeHandler = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+  const changeHandler = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const text = e.target.value;
-    setMdText(text);
-    save(text);
+    setContent(text);
+    debouncedSaveNoteContent(text);
   };
 
   useEffect(() => {
-    setMdText(loadNote());
     textarea.current!.focus();
   }, []);
 
   useEffect(() => {
-    textarea.current!.style.width = `${preview.current!.scrollWidth}px`;
-  }, [mdText]);
+    // TODO use state manager
+    // textarea.current!.style.width = `${preview.current!.scrollWidth}px`;
+  }, [content]);
+
+  return (
+    <TextareaAutoSize
+      ref={textarea}
+      value={content}
+      onChange={changeHandler}
+      placeholder="Start typing your note here!"
+      className="bg-transparent resize-none min-w-full min-h-full whitespace-pre outline-none"
+    />
+  );
+}
+
+const Home: NextPage = () => {
+  const [content, setContent] = useState('');
+  const [name, setName] = useState('');
+  const preview = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    setContent(loadNoteContent())
+    setName(loadNoteName())
+  }, []);
+
+  // TODO show yes/no prompt before closing the tab to prevent unsaved note
 
   return (
     <>
       <Head>
-        <title>mnote | {fileName}</title>
+        <title>mnote | {name}</title>
         <meta
           name="description"
           content="Take some notes and save it locally."
@@ -49,12 +91,7 @@ const Home: NextPage = () => {
               <a className="font-bold text-xl leading-none">mnote</a>
             </Link>
             <span className="leading-none">|</span>
-            <input
-              type="text"
-              className="input input-ghost input-xs text-base px-0 mt-0.5"
-              onChange={(e) => setFileName(e.target.value)}
-              value={fileName}
-            />
+            <NoteName name={name} setName={setName} />
           </div>
           <p className="text-sm underline opacity-50">
             Your note is auto-saved. Try to refresh.
@@ -62,18 +99,12 @@ const Home: NextPage = () => {
         </div>
         <Split className="flex grow overflow-y-hidden">
           <div className="p-4 bg-base-100 overflow-auto">
-            <TextareaAutoSize
-              ref={textarea}
-              value={mdText}
-              onChange={onChangeHandler}
-              placeholder="Start typing your note here!"
-              className="bg-transparent resize-none min-w-full min-h-full whitespace-pre outline-none"
-            />
+            <NoteContent content={content} setContent={setContent} />
           </div>
           <div className="p-4 bg-base-200 overflow-x-auto overflow-y-scroll">
             <div
               ref={preview}
-              dangerouslySetInnerHTML={{ __html: marked.parse(mdText) }}
+              dangerouslySetInnerHTML={{ __html: marked.parse(content) }}
               className="prose"
             />
           </div>

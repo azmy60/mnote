@@ -1,7 +1,17 @@
-export const saveNote = (text: string) => {
-  return localStorage.setItem("__mnote", text);
-}
+const PREFIX = "__mnote_";
 
-export const loadNote = () => {
-  return localStorage.getItem("__mnote") ?? "";
-}
+export const saveNoteContent = (text: string) => {
+  return localStorage.setItem(`${PREFIX}unauth_file_content`, text);
+};
+
+export const loadNoteContent = () => {
+  return localStorage.getItem(`${PREFIX}unauth_file_content`) ?? "";
+};
+
+export const saveNoteName = (name: string) => {
+  return localStorage.setItem(`${PREFIX}unauth_file_name`, name);
+};
+
+export const loadNoteName = () => {
+  return localStorage.getItem(`${PREFIX}unauth_file_name`) ?? "";
+};
