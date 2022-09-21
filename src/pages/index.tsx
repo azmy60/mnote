@@ -22,8 +22,10 @@ interface NoteState {
   setContent: (content: string) => void;
   previewWidth: number;
   setPreviewWidth: (width: number) => void;
-  dirty: boolean;
-  setDirty: (dirty: boolean) => void;
+  dirtyName: boolean;
+  setDirtyName: (dirty: boolean) => void;
+  dirtyContent: boolean;
+  setDirtyContent: (dirty: boolean) => void;
 }
 
 const useStore = create<NoteState>((set) => ({
@@ -33,8 +35,10 @@ const useStore = create<NoteState>((set) => ({
   setContent: (content: string) => set({ content }),
   previewWidth: 0,
   setPreviewWidth: (width: number) => set({ previewWidth: width }),
-  dirty: false,
-  setDirty: (dirty: boolean) => set({ dirty }),
+  dirtyName: false,
+  setDirtyName: (dirtyName: boolean) => set({ dirtyName }),
+  dirtyContent: false,
+  setDirtyContent: (dirtyContent: boolean) => set({ dirtyContent }),
 }));
 
 const debouncedSaveNoteContent = debounce(
@@ -53,10 +57,10 @@ const debouncedSaveNoteName = debounce(
 );
 
 function NoteName() {
-  const { name, setName, setDirty } = useStore();
+  const { name, setName, setDirtyName } = useStore();
   const changeHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setDirty(true);
-    debouncedSaveNoteName(e.target.value, () => setDirty(false));
+    setDirtyName(true);
+    debouncedSaveNoteName(e.target.value, () => setDirtyName(false));
     setName(e.target.value);
   };
 
@@ -71,14 +75,14 @@ function NoteName() {
 }
 
 function NoteContent() {
-  const { content, setContent, previewWidth, setDirty } = useStore();
+  const { content, setContent, previewWidth, setDirtyContent } = useStore();
   const textarea = useRef<HTMLTextAreaElement>(null);
 
   const changeHandler = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const text = e.target.value;
     setContent(text);
-    setDirty(true);
-    debouncedSaveNoteContent(text, () => setDirty(false));
+    setDirtyContent(true);
+    debouncedSaveNoteContent(text, () => setDirtyContent(false));
   };
 
   useEffect(() => {
@@ -101,8 +105,15 @@ function NoteContent() {
 }
 
 const Home: NextPage = () => {
-  const { name, setName, content, setContent, setPreviewWidth, dirty } =
-    useStore();
+  const {
+    name,
+    setName,
+    content,
+    setContent,
+    setPreviewWidth,
+    dirtyName,
+    dirtyContent,
+  } = useStore();
   const preview = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -115,7 +126,8 @@ const Home: NextPage = () => {
   }, [content]);
 
   useBeforeunload(
-    (event: BeforeUnloadEvent) => dirty && event.preventDefault()
+    (event: BeforeUnloadEvent) =>
+      (dirtyName || dirtyContent) && event.preventDefault()
   );
 
   return (
