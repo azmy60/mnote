@@ -3,6 +3,7 @@ import Head from "next/head";
 import { useEffect, useRef } from "react";
 import { marked } from "marked";
 import Split from "react-split";
+import { useBeforeunload } from "react-beforeunload";
 import debounce from "lodash.debounce";
 import TextareaAutoSize from "react-textarea-autosize";
 import Link from "next/link";
@@ -21,6 +22,8 @@ interface NoteState {
   setContent: (content: string) => void;
   previewWidth: number;
   setPreviewWidth: (width: number) => void;
+  dirty: boolean;
+  setDirty: (dirty: boolean) => void;
 }
 
 const useStore = create<NoteState>((set) => ({
@@ -30,15 +33,30 @@ const useStore = create<NoteState>((set) => ({
   setContent: (content: string) => set({ content }),
   previewWidth: 0,
   setPreviewWidth: (width: number) => set({ previewWidth: width }),
+  dirty: false,
+  setDirty: (dirty: boolean) => set({ dirty }),
 }));
 
-const debouncedSaveNoteContent = debounce(saveNoteContent, 1000);
-const debouncedSaveNoteName = debounce(saveNoteName, 1000);
+const debouncedSaveNoteContent = debounce(
+  (text: string, afterSave: () => void) => {
+    saveNoteContent(text);
+    afterSave();
+  },
+  1000
+);
+const debouncedSaveNoteName = debounce(
+  (name: string, afterSave: () => void) => {
+    saveNoteName(name);
+    afterSave();
+  },
+  1000
+);
 
 function NoteName() {
-  const { name, setName } = useStore();
+  const { name, setName, setDirty } = useStore();
   const changeHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
-    debouncedSaveNoteName(e.target.value);
+    setDirty(true);
+    debouncedSaveNoteName(e.target.value, () => setDirty(false));
     setName(e.target.value);
   };
 
@@ -53,13 +71,14 @@ function NoteName() {
 }
 
 function NoteContent() {
-  const { content, setContent, previewWidth } = useStore();
+  const { content, setContent, previewWidth, setDirty } = useStore();
   const textarea = useRef<HTMLTextAreaElement>(null);
 
   const changeHandler = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const text = e.target.value;
     setContent(text);
-    debouncedSaveNoteContent(text);
+    setDirty(true);
+    debouncedSaveNoteContent(text, () => setDirty(false));
   };
 
   useEffect(() => {
@@ -82,7 +101,8 @@ function NoteContent() {
 }
 
 const Home: NextPage = () => {
-  const { name, setName, content, setContent, setPreviewWidth } = useStore();
+  const { name, setName, content, setContent, setPreviewWidth, dirty } =
+    useStore();
   const preview = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -94,7 +114,9 @@ const Home: NextPage = () => {
     setPreviewWidth(preview.current!.scrollWidth);
   }, [content]);
 
-  // TODO show yes/no prompt before closing the tab to prevent unsaved note
+  useBeforeunload(
+    (event: BeforeUnloadEvent) => dirty && event.preventDefault()
+  );
 
   return (
     <>
