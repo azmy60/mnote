@@ -14,31 +14,22 @@ import {
   loadNoteContent,
 } from "../StorageManager";
 import create from "zustand";
+import shallow from "zustand/shallow";
 
 interface NoteState {
   name: string;
-  setName: (name: string) => void;
   content: string;
-  setContent: (content: string) => void;
   previewWidth: number;
-  setPreviewWidth: (width: number) => void;
   dirtyName: boolean;
-  setDirtyName: (dirty: boolean) => void;
   dirtyContent: boolean;
-  setDirtyContent: (dirty: boolean) => void;
 }
 
-const useStore = create<NoteState>((set) => ({
+const useStore = create<NoteState>(() => ({
   name: "",
   content: "",
-  setName: (name: string) => set({ name }),
-  setContent: (content: string) => set({ content }),
   previewWidth: 0,
-  setPreviewWidth: (width: number) => set({ previewWidth: width }),
   dirtyName: false,
-  setDirtyName: (dirtyName: boolean) => set({ dirtyName }),
   dirtyContent: false,
-  setDirtyContent: (dirtyContent: boolean) => set({ dirtyContent }),
 }));
 
 const debouncedSaveNoteContent = debounce(
@@ -57,11 +48,12 @@ const debouncedSaveNoteName = debounce(
 );
 
 function NoteName() {
-  const { name, setName, setDirtyName } = useStore();
+  const name = useStore((state) => state.name);
   const changeHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setDirtyName(true);
-    debouncedSaveNoteName(e.target.value, () => setDirtyName(false));
-    setName(e.target.value);
+    useStore.setState({ dirtyName: true, name: e.target.value });
+    debouncedSaveNoteName(e.target.value, () =>
+      useStore.setState({ dirtyName: false })
+    );
   };
 
   return (
@@ -74,15 +66,22 @@ function NoteName() {
   );
 }
 
-function NoteContent() {
-  const { content, setContent, previewWidth, setDirtyContent } = useStore();
+function NoteEditor() {
+  const { content, previewWidth } = useStore(
+    (state) => ({
+      content: state.content,
+      previewWidth: state.previewWidth,
+    }),
+    shallow
+  );
   const textarea = useRef<HTMLTextAreaElement>(null);
 
   const changeHandler = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const text = e.target.value;
-    setContent(text);
-    setDirtyContent(true);
-    debouncedSaveNoteContent(text, () => setDirtyContent(false));
+    useStore.setState({ content: text, dirtyContent: true });
+    debouncedSaveNoteContent(text, () =>
+      useStore.setState({ dirtyContent: false })
+    );
   };
 
   useEffect(() => {
@@ -104,26 +103,36 @@ function NoteContent() {
   );
 }
 
-const Home: NextPage = () => {
-  const {
-    name,
-    setName,
-    content,
-    setContent,
-    setPreviewWidth,
-    dirtyName,
-    dirtyContent,
-  } = useStore();
+function Preview() {
+  const content = useStore((state) => state.content);
   const preview = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    setContent(loadNoteContent());
-    setName(loadNoteName());
-  }, []);
+    useStore.setState({ previewWidth: preview.current!.scrollWidth });
+  }, [content]);
+
+  return (
+    <div
+      ref={preview}
+      dangerouslySetInnerHTML={{ __html: marked.parse(content) }}
+      className="prose"
+    />
+  );
+}
+
+const Home: NextPage = () => {
+  const { name, dirtyName, dirtyContent } = useStore(
+    (state) => ({
+      name: state.name,
+      dirtyName: state.dirtyName,
+      dirtyContent: state.dirtyContent,
+    }),
+    shallow
+  );
 
   useEffect(() => {
-    setPreviewWidth(preview.current!.scrollWidth);
-  }, [content]);
+    useStore.setState({ content: loadNoteContent(), name: loadNoteName() });
+  }, []);
 
   useBeforeunload(
     (event: BeforeUnloadEvent) =>
@@ -156,14 +165,10 @@ const Home: NextPage = () => {
         </div>
         <Split className="flex grow overflow-y-hidden">
           <div className="p-4 bg-base-100 overflow-auto">
-            <NoteContent />
+            <NoteEditor />
           </div>
           <div className="p-4 bg-base-200 overflow-x-auto overflow-y-scroll">
-            <div
-              ref={preview}
-              dangerouslySetInnerHTML={{ __html: marked.parse(content) }}
-              className="prose"
-            />
+            <Preview />
           </div>
         </Split>
       </main>
