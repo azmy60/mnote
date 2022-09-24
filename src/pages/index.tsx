@@ -15,6 +15,7 @@ import {
 } from "../StorageManager";
 import create from "zustand";
 import shallow from "zustand/shallow";
+import { useSession } from "next-auth/react";
 
 interface NoteState {
   name: string;
@@ -120,7 +121,14 @@ function Preview() {
   );
 }
 
+// TODO:
+// Users that's not signed in only have one note, saved in the local storage.
+// After they sign in for the first time, the note will be saved in the
+// database and the local storage will be cleared out.
+
 const Home: NextPage = () => {
+  const { data: session, status } = useSession();
+
   const { name, dirtyName, dirtyContent } = useStore(
     (state) => ({
       name: state.name,
@@ -130,9 +138,12 @@ const Home: NextPage = () => {
     shallow
   );
 
-  useEffect(() => {
-    useStore.setState({ content: loadNoteContent(), name: loadNoteName() });
-  }, []);
+  if (status !== "loading") {
+    useStore.setState({
+      content: loadNoteContent(session),
+      name: loadNoteName(session),
+    });
+  }
 
   useBeforeunload(
     (event: BeforeUnloadEvent) =>
@@ -142,7 +153,9 @@ const Home: NextPage = () => {
   return (
     <>
       <Head>
-        <title>mnote{name.length > 0 && ` | ${name}`}</title>
+        <title>
+          mnote{status !== "loading" && name.length > 0 ? ` | ${name}` : ""}
+        </title>
         <meta
           name="description"
           content="Take some notes and save it locally."
@@ -151,26 +164,34 @@ const Home: NextPage = () => {
       </Head>
 
       <main className="flex flex-col h-screen">
-        <div className="flex items-center justify-between bg-base-100 px-4 py-2">
-          <div className="flex items-center gap-2">
-            <Link href="/dashboard">
-              <a className="font-bold text-xl leading-none">mnote</a>
-            </Link>
-            <span className="leading-none">|</span>
-            <NoteName />
+        {status === "loading" ? (
+          <div className="h-full flex items-center justify-center bg-base-100 font-bold text-5xl">
+            mnote
           </div>
-          <p className="text-sm underline opacity-50">
-            Your note is auto-saved. Try to refresh.
-          </p>
-        </div>
-        <Split className="flex grow overflow-y-hidden">
-          <div className="p-4 bg-base-100 overflow-auto">
-            <NoteEditor />
-          </div>
-          <div className="p-4 bg-base-200 overflow-x-auto overflow-y-scroll">
-            <Preview />
-          </div>
-        </Split>
+        ) : (
+          <>
+            <div className="flex items-center justify-between bg-base-100 px-4 py-2">
+              <div className="flex items-center gap-2">
+                <Link href="/dashboard">
+                  <a className="font-bold text-xl leading-none">mnote</a>
+                </Link>
+                <span className="leading-none">|</span>
+                <NoteName />
+              </div>
+              <p className="text-sm underline opacity-50">
+                Your note is auto-saved. Try to refresh.
+              </p>
+            </div>
+            <Split className="flex grow overflow-y-hidden">
+              <div className="p-4 bg-base-100 overflow-auto">
+                <NoteEditor />
+              </div>
+              <div className="p-4 bg-base-200 overflow-auto">
+                <Preview />
+              </div>
+            </Split>
+          </>
+        )}
       </main>
     </>
   );
