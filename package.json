@@ -7,10 +7,12 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "test": "jest --watch"
+    "test": "uvu src/**/*.test.js"
   },
   "dependencies": {
     "@heroicons/react": "^2.0.11",
+    "@next-auth/prisma-adapter": "^1.0.4",
+    "@prisma/client": "4.3.1",
     "@types/lodash.debounce": "^4.0.7",
     "@types/marked": "^4.0.7",
     "daisyui": "^2.27.0",
@@ -41,6 +43,7 @@
     "eslint-config-next": "12.2.5",
     "jest-environment-jsdom": "^29.0.3",
     "postcss": "^8.4.16",
+    "prisma": "^4.3.1",
     "tailwindcss": "^3.1.8",
     "typescript": "4.7.4",
     "uvu": "^0.5.6"
