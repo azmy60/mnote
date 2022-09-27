@@ -1,13 +1,14 @@
-import type { GetServerSideProps, InferGetServerSidePropsType } from "next";
+import type {
+  GetServerSideProps,
+  InferGetServerSidePropsType,
+  NextPage,
+} from "next";
 import { unstable_getServerSession } from "next-auth";
 import { authOptions } from "../api/auth/[...nextauth]";
-import { Note, PrismaClient } from "@prisma/client";
 import { NoteWindow } from "../../components/NoteWindow";
-import { loadDBNote } from "../../StorageManager";
+import { useRouter } from "next/router";
 
-export const getServerSideProps: GetServerSideProps<{
-  note: Pick<Note, "id" | "name" | "content">;
-}> = async (context) => {
+export const getServerSideProps: GetServerSideProps = async (context) => {
   const session = await unstable_getServerSession(
     context.req,
     context.res,
@@ -26,25 +27,20 @@ export const getServerSideProps: GetServerSideProps<{
     };
   }
 
-  const note = await loadDBNote(new PrismaClient(), id, userId);
-  if (!note) {
-    return { notFound: true };
-  }
-
   return {
-    props: {
-      note: {
-        id,
-        name: note.name,
-        content: note.content,
-      },
-    },
+    props: {},
   };
 };
 
-const NotePage = ({
-  note: { id, name, content },
-}: InferGetServerSidePropsType<typeof getServerSideProps>) => {
+const NotePage: NextPage = () => {
+  const id = useRouter().query.id;
+
+  const loadNote = async () => {
+    const res = await fetch(`/api/note/${id}`);
+    const { name, content } = await res.json();
+    return { name, content };
+  };
+
   const saveName = (name: string) => {
     fetch(`/api/note/${id}`, {
       method: "POST",
@@ -61,11 +57,10 @@ const NotePage = ({
 
   return (
     <NoteWindow
-      initialName={name}
-      initialContent={content}
-      error={""}
+      loadNoteHandler={loadNote}
       saveNameHandler={saveName}
       saveContentHandler={saveContent}
+      error={""}
     />
   );
 };

@@ -5,10 +5,6 @@ import { loadDBNote } from "../../../StorageManager";
 import { authOptions } from "../auth/[...nextauth]";
 
 export default async (req: NextApiRequest, res: NextApiResponse) => {
-  if (req.method !== "POST") {
-    return res.status(405);
-  }
-
   const session = await unstable_getServerSession(req, res, authOptions);
   const userId = session?.user?.id;
   if (!session || !userId) {
@@ -22,10 +18,18 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
     return res.status(401);
   }
 
-  const { name, content } = JSON.parse(req.body);
-  await client.note.update({
-    where: { id },
-    data: { name, content },
-  });
+  if (req.method === "POST") {
+    const { name, content } = JSON.parse(req.body);
+    await client.note.update({
+      where: { id },
+      data: { name, content },
+    });
+  } else {
+    res.json({
+      name: note.name,
+      content: note.content,
+    });
+  }
+
   res.status(200);
 };

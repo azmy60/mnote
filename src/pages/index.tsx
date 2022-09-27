@@ -1,5 +1,5 @@
 import type { GetServerSideProps, NextPage } from "next";
-import { loadLocalNoteName, loadLocalNoteContent, saveLocalNoteName, saveLocalNoteContent } from "../StorageManager";
+import { saveLocalNoteName, saveLocalNoteContent, loadLocalNote } from "../StorageManager";
 import { unstable_getServerSession } from "next-auth";
 import { authOptions } from "./api/auth/[...nextauth]";
 import { NoteWindow } from "../components/NoteWindow";
@@ -26,11 +26,10 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
 const Home: NextPage = () => {
   return (
     <NoteWindow
-      initialName={loadLocalNoteName()}
-      initialContent={loadLocalNoteContent()}
-      error={""}
+      loadNoteHandler={async () => loadLocalNote()}
       saveNameHandler={saveLocalNoteName}
       saveContentHandler={saveLocalNoteContent}
+      error={""}
     />
   );
 };

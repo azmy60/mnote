@@ -8,17 +8,22 @@ import shallow from "zustand/shallow";
 import { useNoteWindowStore } from "../NoteWindowStore";
 import TextareaAutoSize from "react-textarea-autosize";
 import Split from "react-split";
-import { useSession } from "next-auth/react";
 
-const debouncedSaveNoteName = debounce((name: string, afterSave: () => void) => {
-  useNoteWindowStore.getState().saveNameHandler(name);
-  afterSave();
-}, 1000);
+const debouncedSaveNoteName = debounce(
+  (name: string, afterSave: () => void) => {
+    useNoteWindowStore.getState().saveNameHandler(name);
+    afterSave();
+  },
+  1000
+);
 
-const debouncedSaveNoteContent = debounce((content: string, afterSave: () => void) => {
-  useNoteWindowStore.getState().saveContentHandler(content);
-  afterSave();
-}, 1000);
+const debouncedSaveNoteContent = debounce(
+  (content: string, afterSave: () => void) => {
+    useNoteWindowStore.getState().saveContentHandler(content);
+    afterSave();
+  },
+  1000
+);
 
 function NoteName() {
   const name = useNoteWindowStore((state) => state.name);
@@ -95,16 +100,14 @@ function Preview() {
 }
 
 interface NoteWindowProps {
-  initialName: string;
-  initialContent: string;
+  loadNoteHandler: () => Promise<{ name: string; content: string }>;
   saveNameHandler: (name: string) => void;
   saveContentHandler: (content: string) => void;
   error: string;
 }
 
 export const NoteWindow = ({
-  initialName,
-  initialContent,
+  loadNoteHandler,
   saveNameHandler,
   saveContentHandler,
   error,
@@ -118,16 +121,18 @@ export const NoteWindow = ({
     shallow
   );
   const [title, setTitle] = useState("mnote");
-
-  // FIXME not necessary.. but i like the loading state... what should i do???
-  const { status } = useSession();
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    useNoteWindowStore.setState({
-      name: initialName,
-      content: initialContent,
-      saveNameHandler,
-      saveContentHandler,
+    setLoading(true);
+    loadNoteHandler().then(({ name, content }) => {
+      useNoteWindowStore.setState({
+        name,
+        content,
+        saveNameHandler,
+        saveContentHandler,
+      });
+      setLoading(false);
     });
   }, []);
 
@@ -153,7 +158,7 @@ export const NoteWindow = ({
       </Head>
 
       <main className="flex flex-col h-screen">
-        {status === "loading" ? (
+        {loading ? (
           <div className="h-full flex items-center justify-center bg-base-100 font-bold text-5xl">
             mnote
           </div>

@@ -6,16 +6,15 @@ export const saveLocalNoteContent = (text: string) => {
   return localStorage.setItem(`${PREFIX}unauth_file_content`, text);
 };
 
-export const loadLocalNoteContent = () => {
-  return localStorage.getItem(`${PREFIX}unauth_file_content`) ?? "";
-};
-
 export const saveLocalNoteName = (name: string) => {
   return localStorage.setItem(`${PREFIX}unauth_file_name`, name);
 };
 
-export const loadLocalNoteName = () => {
-  return localStorage.getItem(`${PREFIX}unauth_file_name`) ?? "";
+export const loadLocalNote = () => {
+  return {
+    name: localStorage.getItem(`${PREFIX}unauth_file_name`) ?? "",
+    content: localStorage.getItem(`${PREFIX}unauth_file_content`) ?? "",
+  };
 };
 
 export const saveDBNoteName = async ({ id, name }: Note) => {
