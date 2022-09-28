@@ -1,16 +1,36 @@
 import { PlusIcon } from "@heroicons/react/24/solid";
 import { Note } from "@prisma/client";
 import moment from "moment";
-import type { NextPage } from "next";
-import { signIn, signOut, useSession } from "next-auth/react";
+import type { GetServerSideProps, NextPage } from "next";
+import { unstable_getServerSession } from "next-auth";
+import { signOut} from "next-auth/react";
 import Head from "next/head";
 import Link from "next/link";
 import Router from "next/router";
 import { useEffect, useState } from "react";
+import { authOptions } from "./api/auth/[...nextauth]";
+
+export const getServerSideProps: GetServerSideProps = async (context) => {
+  const session = await unstable_getServerSession(
+    context.req,
+    context.res,
+    authOptions
+  );
+
+  if (!session) {
+    return {
+      redirect: {
+        destination: "/",
+        permanent: false,
+      },
+    };
+  }
+
+  return { props: {} };
+};
+
 
 const Dashboard: NextPage = () => {
-  const { data: session } = useSession();
-
   const [notes, setNotes] = useState([] as Note[]);
   const [loading, setLoading] = useState(true);
 
@@ -71,23 +91,6 @@ const Dashboard: NextPage = () => {
           ))}
         </div>
       </main>
-
-      <div className={`modal ${!session && "modal-open"}`}>
-        <div className="modal-box max-w-sm">
-          <p>
-            You can have up to 100 notes with unlimited directories. Sign in to
-            unlock!
-          </p>
-          <div className="modal-action">
-            <Link href="/">
-              <a className="btn btn-outline">Go to note</a>
-            </Link>
-            <button onClick={() => signIn()} className="btn btn-primary">
-              Sign In
-            </button>
-          </div>
-        </div>
-      </div>
     </>
   );
 };

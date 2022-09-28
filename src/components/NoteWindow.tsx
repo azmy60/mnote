@@ -8,6 +8,7 @@ import shallow from "zustand/shallow";
 import { useNoteWindowStore } from "../NoteWindowStore";
 import TextareaAutoSize from "react-textarea-autosize";
 import Split from "react-split";
+import { signIn, useSession } from "next-auth/react";
 
 const debouncedSaveNoteName = debounce(
   (name: string, afterSave: () => void) => {
@@ -112,6 +113,7 @@ export const NoteWindow = ({
   saveContentHandler,
   error,
 }: NoteWindowProps) => {
+  const { status } = useSession();
   const { name, dirtyName, dirtyContent } = useNoteWindowStore(
     (state) => ({
       name: state.name,
@@ -172,9 +174,19 @@ export const NoteWindow = ({
                 <span className="leading-none">|</span>
                 <NoteName />
               </div>
-              <p className="text-sm underline opacity-50">
-                Your note is auto-saved. Try to refresh.
-              </p>
+              <div className="flex gap-6 items-center">
+                <p className="text-sm underline opacity-50">
+                  Your note is auto-saved.
+                </p>
+                {status !== "authenticated" && (
+                  <button
+                    onClick={() => signIn()}
+                    className="btn btn-primary btn-sm"
+                  >
+                    Sign in
+                  </button>
+                )}
+              </div>
             </div>
             <Split className="flex grow overflow-y-hidden">
               <div className="p-4 bg-base-100 overflow-auto">
