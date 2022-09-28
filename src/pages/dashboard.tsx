@@ -3,7 +3,7 @@ import { Note } from "@prisma/client";
 import moment from "moment";
 import type { GetServerSideProps, NextPage } from "next";
 import { unstable_getServerSession } from "next-auth";
-import { signOut} from "next-auth/react";
+import { signOut } from "next-auth/react";
 import Head from "next/head";
 import Link from "next/link";
 import Router from "next/router";
@@ -28,7 +28,6 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
 
   return { props: {} };
 };
-
 
 const Dashboard: NextPage = () => {
   const [notes, setNotes] = useState([] as Note[]);
@@ -100,9 +99,7 @@ const NoteCard = ({ note }: { note: Note }) => {
     <div className="card card-compact bg-base-100 border-2 border-base-300 cursor-pointer">
       <div className="card-body">
         <h2 className="card-title">{note.name}</h2>
-        <p className="opacity-50">
-          Modified {moment(note.updatedAt).fromNow()}
-        </p>
+        <p className="opacity-50">{moment(note.updatedAt).fromNow()}</p>
       </div>
     </div>
   );

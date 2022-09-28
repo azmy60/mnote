@@ -29,9 +29,14 @@ const debouncedSaveNoteContent = debounce(
 function NoteName() {
   const name = useNoteWindowStore((state) => state.name);
   const changeHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
-    useNoteWindowStore.setState({ dirtyName: true, name: e.target.value });
-    debouncedSaveNoteName(e.target.value, () =>
-      useNoteWindowStore.setState({ dirtyName: false })
+    const name = e.target.value;
+    useNoteWindowStore.setState({
+      dirtyName: true,
+      name,
+      saving: true,
+    });
+    debouncedSaveNoteName(name, () =>
+      useNoteWindowStore.setState({ dirtyName: false, saving: false })
     );
   };
 
@@ -56,11 +61,15 @@ function NoteEditor() {
   const textarea = useRef<HTMLTextAreaElement>(null);
 
   const changeHandler = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    const text = e.target.value;
-    useNoteWindowStore.setState({ content: text, dirtyContent: true });
+    const content = e.target.value;
+    useNoteWindowStore.setState({
+      content,
+      dirtyContent: true,
+      saving: true,
+    });
     // TODO useCallback??
-    debouncedSaveNoteContent(text, () =>
-      useNoteWindowStore.setState({ dirtyContent: false })
+    debouncedSaveNoteContent(content, () =>
+      useNoteWindowStore.setState({ dirtyContent: false, saving: false })
     );
   };
 
@@ -114,11 +123,12 @@ export const NoteWindow = ({
   error,
 }: NoteWindowProps) => {
   const { status } = useSession();
-  const { name, dirtyName, dirtyContent } = useNoteWindowStore(
+  const { name, dirtyName, dirtyContent, saving } = useNoteWindowStore(
     (state) => ({
       name: state.name,
       dirtyName: state.dirtyName,
       dirtyContent: state.dirtyContent,
+      saving: state.saving,
     }),
     shallow
   );
@@ -174,10 +184,39 @@ export const NoteWindow = ({
                 <span className="leading-none">|</span>
                 <NoteName />
               </div>
-              <div className="flex gap-6 items-center">
-                <p className="text-sm underline opacity-50">
-                  Your note is auto-saved.
-                </p>
+              <div className="flex gap-4 items-center">
+                <button className="btn btn-primary btn-sm gap-2" disabled>
+                  {saving ? (
+                    <>
+                        {/* TODO better loading icon */}
+                      <div
+                        className="radial-progress animate-spin"
+                        style={{
+                          "--value": "70",
+                          "--size": "1.25rem",
+                          "--thickness": "0.25rem",
+                        }}
+                      />
+                      saving
+                    </>
+                  ) : (
+                    <>
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 20 20"
+                        fill="currentColor"
+                        className="w-5 h-5"
+                      >
+                        <path
+                          fillRule="evenodd"
+                          d="M5.5 17a4.5 4.5 0 01-1.44-8.765 4.5 4.5 0 018.302-3.046 3.5 3.5 0 014.504 4.272A4 4 0 0115 17H5.5zm3.75-2.75a.75.75 0 001.5 0V9.66l1.95 2.1a.75.75 0 101.1-1.02l-3.25-3.5a.75.75 0 00-1.1 0l-3.25 3.5a.75.75 0 101.1 1.02l1.95-2.1v4.59z"
+                          clipRule="evenodd"
+                        />
+                      </svg>
+                      saved
+                    </>
+                  )}
+                </button>
                 {status !== "authenticated" && (
                   <button
                     onClick={() => signIn()}

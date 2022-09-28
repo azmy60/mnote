@@ -8,6 +8,7 @@ interface NoteWindowState {
   dirtyContent: boolean;
   saveNameHandler: (name: string) => void;
   saveContentHandler: (content: string) => void;
+  saving: boolean;
 }
 
 export const useNoteWindowStore = create<NoteWindowState>(() => ({
@@ -19,4 +20,5 @@ export const useNoteWindowStore = create<NoteWindowState>(() => ({
   dirtyContent: false,
   saveNameHandler() {},
   saveContentHandler() {},
+  saving: false,
 }));
