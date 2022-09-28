@@ -166,7 +166,7 @@ export const NoteWindow = ({
           </div>
         ) : (
           <>
-            <div className="flex items-center justify-between bg-base-100 px-4 py-2">
+            <div className="flex items-center justify-between bg-base-100 px-4 py-2 border-b border-neutral/25">
               <div className="flex items-center gap-2">
                 <Link href="/">
                   <a className="font-bold text-xl leading-none">mnote</a>
@@ -189,10 +189,10 @@ export const NoteWindow = ({
               </div>
             </div>
             <Split className="flex grow overflow-y-hidden">
-              <div className="p-4 bg-base-100 overflow-auto">
+              <div className="p-4 overflow-auto border-r border-neutral/25">
                 <NoteEditor />
               </div>
-              <div className="p-4 bg-base-200 overflow-auto">
+              <div className="p-4 overflow-auto border-l border-neutral/25">
                 <Preview />
               </div>
             </Split>
