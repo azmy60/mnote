@@ -7,7 +7,7 @@ import { signOut } from "next-auth/react";
 import Head from "next/head";
 import Link from "next/link";
 import Router from "next/router";
-import { useEffect, useState } from "react";
+import { trpc } from "../utils/trpc";
 import { authOptions } from "./api/auth/[...nextauth]";
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
@@ -30,18 +30,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
 };
 
 const Dashboard: NextPage = () => {
-  const [notes, setNotes] = useState([] as Note[]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    setLoading(true);
-    fetch("/api/notes")
-      .then((res) => res.json())
-      .then((notes: Note[]) => {
-        setNotes(notes);
-        setLoading(false);
-      });
-  }, []);
+  const notes = trpc.notes.useQuery();
 
   return (
     <>
@@ -71,7 +60,7 @@ const Dashboard: NextPage = () => {
           </button>
         </div>
         <div className="mt-12 grid grid-cols-3 gap-8">
-          {loading && (
+          {!notes.data ? (
             <div
               className="radial-progress animate-spin"
               style={{
@@ -80,14 +69,15 @@ const Dashboard: NextPage = () => {
                 "--thickness": "0.25rem",
               }}
             />
+          ) : (
+            notes.data.map((note) => (
+              <Link key={note.id} href={`/note/${note.id}`}>
+                <a>
+                  <NoteCard note={note} />
+                </a>
+              </Link>
+            ))
           )}
-          {notes.map((note) => (
-            <Link key={note.id} href={`/note/${note.id}`}>
-              <a>
-                <NoteCard note={note} />
-              </a>
-            </Link>
-          ))}
         </div>
       </main>
     </>
