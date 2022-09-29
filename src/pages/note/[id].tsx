@@ -1,66 +1,30 @@
-import type {
-  GetServerSideProps,
-  InferGetServerSidePropsType,
-  NextPage,
-} from "next";
-import { unstable_getServerSession } from "next-auth";
-import { authOptions } from "../api/auth/[...nextauth]";
+import type { NextPage } from "next";
 import { NoteWindow } from "../../components/NoteWindow";
 import { useRouter } from "next/router";
-
-export const getServerSideProps: GetServerSideProps = async (context) => {
-  const session = await unstable_getServerSession(
-    context.req,
-    context.res,
-    authOptions
-  );
-  const id = context.query.id as string;
-  const userId = session?.user?.id;
-
-  // TODO use middleware
-  if (!session || !id || !userId) {
-    return {
-      redirect: {
-        destination: "/",
-        permanent: false,
-      },
-    };
-  }
-
-  return {
-    props: {},
-  };
-};
+import { trpc } from "../../utils/trpc";
 
 const NotePage: NextPage = () => {
-  const id = useRouter().query.id;
+  const id = useRouter().query.id as string;
+  const { isError, data, error } = trpc.note.byId.useQuery({ id });
+  const mutation = trpc.note.edit.useMutation();
 
-  const loadNote = async () => {
-    const res = await fetch(`/api/note/${id}`);
-    const { name, content } = await res.json();
-    return { name, content };
-  };
+  const saveName = (name: string) => mutation.mutate({ id, name });
+  const saveContent = (content: string) => mutation.mutate({ id, content });
 
-  const saveName = (name: string) => {
-    fetch(`/api/note/${id}`, {
-      method: "POST",
-      body: JSON.stringify({ name }),
-    });
-  };
-
-  const saveContent = (content: string) => {
-    fetch(`/api/note/${id}`, {
-      method: "POST",
-      body: JSON.stringify({ content }),
-    });
-  };
+  if (!data) {
+    return (
+      <div className="h-screen flex items-center justify-center bg-base-100 font-bold text-5xl">
+        <div className="text-5xl font-bold">mnote</div>
+        {isError && <div className="text-xl">{error.message}</div>}
+      </div>
+    );
+  }
 
   return (
     <NoteWindow
-      loadNoteHandler={loadNote}
+      note={data}
       saveNameHandler={saveName}
       saveContentHandler={saveContent}
-      error={""}
     />
   );
 };

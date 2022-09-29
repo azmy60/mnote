@@ -9,13 +9,14 @@ import { useNoteWindowStore } from "../NoteWindowStore";
 import TextareaAutoSize from "react-textarea-autosize";
 import Split from "react-split";
 import { signIn, useSession } from "next-auth/react";
+import { Note } from "@prisma/client";
 
 const debouncedSaveNoteName = debounce(
   (name: string, afterSave: () => void) => {
     useNoteWindowStore.getState().saveNameHandler(name);
     afterSave();
   },
-  1000
+  3000
 );
 
 const debouncedSaveNoteContent = debounce(
@@ -23,7 +24,7 @@ const debouncedSaveNoteContent = debounce(
     useNoteWindowStore.getState().saveContentHandler(content);
     afterSave();
   },
-  1000
+  3000
 );
 
 function NoteName() {
@@ -110,17 +111,15 @@ function Preview() {
 }
 
 interface NoteWindowProps {
-  loadNoteHandler: () => Promise<{ name: string; content: string }>;
+  note: Pick<Note, "name" | "content">;
   saveNameHandler: (name: string) => void;
   saveContentHandler: (content: string) => void;
-  error: string;
 }
 
 export const NoteWindow = ({
-  loadNoteHandler,
+  note,
   saveNameHandler,
   saveContentHandler,
-  error,
 }: NoteWindowProps) => {
   const { status } = useSession();
   const { name, dirtyName, dirtyContent, saving } = useNoteWindowStore(
@@ -133,25 +132,23 @@ export const NoteWindow = ({
     shallow
   );
   const [title, setTitle] = useState("mnote");
-  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    setLoading(true);
-    loadNoteHandler().then(({ name, content }) => {
-      useNoteWindowStore.setState({
-        name,
-        content,
-        saveNameHandler,
-        saveContentHandler,
-      });
-      setLoading(false);
-    });
+    useNoteWindowStore.setState({ saveNameHandler, saveContentHandler });
   }, []);
 
   useEffect(() => {
     if (name.length > 0) setTitle(`mnote | ${name}`);
     else setTitle("mnote");
   }, [name]);
+
+  useEffect(() => {
+    if (!note) return;
+    useNoteWindowStore.setState({
+      name: note.name,
+      content: note.content,
+    });
+  }, [note]);
 
   useBeforeunload(
     (event: BeforeUnloadEvent) =>
@@ -170,80 +167,68 @@ export const NoteWindow = ({
       </Head>
 
       <main className="flex flex-col h-screen">
-        {loading ? (
-          <div className="h-full flex items-center justify-center bg-base-100 font-bold text-5xl">
-            mnote
-          </div>
-        ) : (
-          <>
-            <div className="flex items-center justify-between bg-base-100 px-4 py-2 border-b border-neutral/25">
-              <div className="flex items-center gap-2">
-                <Link href="/">
-                  <a className="font-bold text-xl leading-none">mnote</a>
-                </Link>
-                <span className="leading-none">|</span>
-                <NoteName />
-              </div>
-              <div className="flex gap-4 items-center">
-                <button className="btn btn-primary btn-sm gap-2" disabled>
-                  {saving ? (
-                    <>
-                        {/* TODO better loading icon */}
-                      <div
-                        className="radial-progress animate-spin"
-                        style={{
-                          "--value": "70",
-                          "--size": "1.25rem",
-                          "--thickness": "0.25rem",
-                        }}
-                      />
-                      saving
-                    </>
-                  ) : (
-                    <>
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        viewBox="0 0 20 20"
-                        fill="currentColor"
-                        className="w-5 h-5"
-                      >
-                        <path
-                          fillRule="evenodd"
-                          d="M5.5 17a4.5 4.5 0 01-1.44-8.765 4.5 4.5 0 018.302-3.046 3.5 3.5 0 014.504 4.272A4 4 0 0115 17H5.5zm3.75-2.75a.75.75 0 001.5 0V9.66l1.95 2.1a.75.75 0 101.1-1.02l-3.25-3.5a.75.75 0 00-1.1 0l-3.25 3.5a.75.75 0 101.1 1.02l1.95-2.1v4.59z"
-                          clipRule="evenodd"
-                        />
-                      </svg>
-                      saved
-                    </>
-                  )}
-                </button>
-                {status !== "authenticated" && (
-                  <button
-                    onClick={() => signIn()}
-                    className="btn btn-primary btn-sm"
-                  >
-                    Sign in
-                  </button>
-                )}
-              </div>
+        <>
+          <div className="flex items-center justify-between bg-base-100 px-4 py-2 border-b border-neutral/25">
+            <div className="flex items-center gap-2">
+              <Link href="/">
+                <a className="font-bold text-xl leading-none">mnote</a>
+              </Link>
+              <span className="leading-none">|</span>
+              <NoteName />
             </div>
-            <Split className="flex grow overflow-y-hidden">
-              <div className="p-4 overflow-auto border-r border-neutral/25">
-                <NoteEditor />
-              </div>
-              <div className="p-4 overflow-auto border-l border-neutral/25">
-                <Preview />
-              </div>
-            </Split>
-          </>
-        )}
+            <div className="flex gap-4 items-center">
+              <button className="btn btn-primary btn-sm gap-2" disabled>
+                {saving ? (
+                  <>
+                    {/* TODO better loading icon */}
+                    <div
+                      className="radial-progress animate-spin"
+                      style={{
+                        "--value": "70",
+                        "--size": "1.25rem",
+                        "--thickness": "0.25rem",
+                      }}
+                    />
+                    saving
+                  </>
+                ) : (
+                  <>
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 20 20"
+                      fill="currentColor"
+                      className="w-5 h-5"
+                    >
+                      <path
+                        fillRule="evenodd"
+                        d="M5.5 17a4.5 4.5 0 01-1.44-8.765 4.5 4.5 0 018.302-3.046 3.5 3.5 0 014.504 4.272A4 4 0 0115 17H5.5zm3.75-2.75a.75.75 0 001.5 0V9.66l1.95 2.1a.75.75 0 101.1-1.02l-3.25-3.5a.75.75 0 00-1.1 0l-3.25 3.5a.75.75 0 101.1 1.02l1.95-2.1v4.59z"
+                        clipRule="evenodd"
+                      />
+                    </svg>
+                    saved
+                  </>
+                )}
+              </button>
+              {status !== "authenticated" && (
+                <button
+                  onClick={() => signIn()}
+                  className="btn btn-primary btn-sm"
+                >
+                  Sign in
+                </button>
+              )}
+            </div>
+          </div>
+          <Split className="flex grow overflow-y-hidden">
+            <div className="p-4 overflow-auto border-r border-neutral/25">
+              <NoteEditor />
+            </div>
+            <div className="p-4 overflow-auto border-l border-neutral/25">
+              <Preview />
+            </div>
+          </Split>
+        </>
       </main>
-
-      {error.length > 0 && (
-        <div className="absolute inset-0 bg-base-100 opacity-50 flex items-center justify-center">
-          {error}
-        </div>
-      )}
     </>
   );
 };

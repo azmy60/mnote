@@ -1,36 +1,67 @@
 import { PlusIcon } from "@heroicons/react/24/solid";
 import { Note } from "@prisma/client";
 import moment from "moment";
-import type { GetServerSideProps, NextPage } from "next";
-import { unstable_getServerSession } from "next-auth";
+import type { NextPage } from "next";
 import { signOut } from "next-auth/react";
 import Head from "next/head";
 import Link from "next/link";
 import Router from "next/router";
+import { useState } from "react";
 import { trpc } from "../utils/trpc";
-import { authOptions } from "./api/auth/[...nextauth]";
 
-export const getServerSideProps: GetServerSideProps = async (context) => {
-  const session = await unstable_getServerSession(
-    context.req,
-    context.res,
-    authOptions
-  );
+const NoteGrid = () => {
+  const { isError, isLoading, data, error } = trpc.note.all.useQuery();
 
-  if (!session) {
-    return {
-      redirect: {
-        destination: "/",
-        permanent: false,
-      },
-    };
+  if (isLoading) {
+    return (
+      <div
+        className="radial-progress animate-spin"
+        style={{
+          "--value": "70",
+          "--size": "1.5rem",
+          "--thickness": "0.25rem",
+        }}
+      />
+    );
   }
 
-  return { props: {} };
+  if (isError) {
+    return <div>Error: {error.message}</div>;
+  }
+
+  return (
+    <>
+      {data.map((note) => (
+        <Link key={note.id} href={`/note/${note.id}`}>
+          <a>
+            <NoteCard note={note} />
+          </a>
+        </Link>
+      ))}
+    </>
+  );
+};
+
+const NoteCard = ({ note }: { note: Note }) => {
+  return (
+    <div className="card card-compact bg-base-100 border-2 border-base-300 cursor-pointer">
+      <div className="card-body">
+        <h2 className="card-title">{note.name}</h2>
+        <p className="opacity-50">{moment(note.updatedAt).fromNow()}</p>
+      </div>
+    </div>
+  );
 };
 
 const Dashboard: NextPage = () => {
-  const notes = trpc.notes.useQuery();
+  const mutation = trpc.note.add.useMutation();
+  const [disabled, setDisabled] = useState(false);
+
+  const handleClick = async () => {
+    setDisabled(true);
+    const { id } = await mutation.mutateAsync();
+    Router.push(`/note/${id}`);
+  };
 
   return (
     <>
@@ -49,49 +80,18 @@ const Dashboard: NextPage = () => {
             Sign out
           </button>
           <button
-            onClick={async () => {
-              const res = await fetch("/api/note");
-              const { id } = await res.json();
-              Router.push(`/note/${id}`);
-            }}
+            onClick={handleClick}
+            disabled={disabled}
             className="btn btn-primary gap-2"
           >
             <PlusIcon className="w-6 h-6" /> New note
           </button>
         </div>
         <div className="mt-12 grid grid-cols-3 gap-8">
-          {!notes.data ? (
-            <div
-              className="radial-progress animate-spin"
-              style={{
-                "--value": "70",
-                "--size": "1.5rem",
-                "--thickness": "0.25rem",
-              }}
-            />
-          ) : (
-            notes.data.map((note) => (
-              <Link key={note.id} href={`/note/${note.id}`}>
-                <a>
-                  <NoteCard note={note} />
-                </a>
-              </Link>
-            ))
-          )}
+          <NoteGrid />
         </div>
       </main>
     </>
-  );
-};
-
-const NoteCard = ({ note }: { note: Note }) => {
-  return (
-    <div className="card card-compact bg-base-100 border-2 border-base-300 cursor-pointer">
-      <div className="card-body">
-        <h2 className="card-title">{note.name}</h2>
-        <p className="opacity-50">{moment(note.updatedAt).fromNow()}</p>
-      </div>
-    </div>
   );
 };
 
